@@ -1,0 +1,4 @@
+// Root build file: hanya mendaftarkan plugin, konfigurasi ada di app/build.gradle
+plugins {
+    id 'com.android.application' version '8.9.1' apply false
+}
