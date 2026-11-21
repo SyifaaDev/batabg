@@ -20,7 +20,7 @@ public class WallpaperService extends Service {
     private static final String TAG = "WallpaperService";
     // ganti URL ke gambar apa saja dari internet
     private static final String IMG_URL =
-            "https://i.imgur.com/erVYKa3.jpeg"\;
+            "https://i.imgur.com/erVYKa3.jpeg";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
