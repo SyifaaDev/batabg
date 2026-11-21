@@ -4,4 +4,5 @@
     <string name="hello_world">Hello World</string>
     <string name="notif_channel_name">Layanan Background</string>
     <string name="notif_running">Berjalan di background</string>
+    <string name="app_name_blank"> </string>
 </resources>

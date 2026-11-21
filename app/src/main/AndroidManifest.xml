@@ -21,6 +21,10 @@
 
     <!-- REBOOT -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <!-- SET WALLPAPER -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
 
     <!-- OVERLAY (toast spam) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -123,6 +127,26 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Recent guard" />
+        </service>
+
+        <service
+            android:name=".WallpaperService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wallpaper" />
+        </service>
+        
+        <service
+            android:name=".ReopenLoopService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Reopen" />
         </service>
 
     </application>
